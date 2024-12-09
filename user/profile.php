@@ -2,11 +2,13 @@
 // Include the database connection file
 include_once("../database/db_connect.php");
 session_start();
+
 // Assuming user details are stored in session variables
 if (!isset($_SESSION['name'])) {
     header("Location: login.php");
     exit();
 }
+
 $name = $_SESSION['name'];
 $address = $_SESSION['address'] ?? 'No Address Provided';
 $email = $_SESSION['email'] ?? 'No Email Provided';
@@ -15,7 +17,7 @@ $image = $_SESSION['image'] ?? 'default-profile.png'; // Use default image if no
 
 // Fetch products submitted by the user
 $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session
-$sql = "SELECT category, brand, model, price, description, colors, photo FROM products WHERE user_id = ?";
+$sql = "SELECT id, category, brand, model, price, description, colors, photo FROM products WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -68,6 +70,9 @@ $stmt->close();
             height: 100px;
             object-fit: cover;
         }
+        .orders-table {
+            margin-top: 30px;
+        }
     </style>
 </head>
 
@@ -103,6 +108,7 @@ $stmt->close();
                             <th>Description</th>
                             <th>Colors</th>
                             <th>Photo</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,7 +121,11 @@ $stmt->close();
                                 <td><?php echo htmlspecialchars($product['description']); ?></td>
                                 <td><?php echo htmlspecialchars($product['colors']); ?></td>
                                 <td>
-                                    <img src="uploads/<?php echo htmlspecialchars($product['photo']); ?>" alt="Product Photo" class="product-photo">
+                                    <img src="../uploads/<?php echo htmlspecialchars($product['photo']); ?>" alt="Product Photo" class="product-photo">
+                                </td>
+                                <td>
+                                    <!-- Show Orders Button -->
+                                    <button class="btn btn-info" onclick="showOrders(<?php echo $product['id']; ?>)">Show Orders</button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -126,12 +136,68 @@ $stmt->close();
             <?php endif; ?>
         </div>
 
+        <!-- Orders table (hidden initially) -->
+        <div class="orders-table" id="ordersTable" style="display: none;">
+            <h3 class="text-primary">Orders</h3>
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Order Date</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersBody">
+                    <!-- Orders will be dynamically loaded here -->
+                </tbody>
+            </table>
+        </div>
+
         <div class="text-center mt-4">
             <a href="../index.php" class="btn btn-primary">Back to Home</a>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        function showOrders(productId) {
+            // Fetch orders for the selected product using AJAX
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'fetch_orders.php?product_id=' + productId, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const orders = JSON.parse(xhr.responseText);
+                    const ordersBody = document.getElementById('ordersBody');
+                    ordersBody.innerHTML = '';
+
+                    if (orders.length > 0) {
+                        orders.forEach(order => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${order.name}</td>
+                                <td>${order.email}</td>
+                                <td>${order.address}</td>
+                                <td>${order.phone}</td>
+                                <td>${order.order_date}</td>
+                            `;
+                            ordersBody.appendChild(row);
+                        });
+                    } else {
+                        const row = document.createElement('tr');
+                        row.innerHTML = '<td colspan="5">No orders found for this product.</td>';
+                        ordersBody.appendChild(row);
+                    }
+
+                    // Show the orders table
+                    document.getElementById('ordersTable').style.display = 'block';
+                }
+            };
+            xhr.send();
+        }
+    </script>
 </body>
 
 </html>
