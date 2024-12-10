@@ -5,7 +5,7 @@ if (isset($_POST['order_id'])) {
     $order_id = $_POST['order_id'];
 
     // Update the order status to 'Complete'
-    $sql = "UPDATE orders SET status = 'Complete' WHERE id = ?";
+    $sql = "UPDATE product_orders SET status = 'Complete' WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $order_id);
     $stmt->execute();

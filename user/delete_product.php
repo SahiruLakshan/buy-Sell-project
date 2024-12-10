@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_id = $_POST['product_id'];
 
     // SQL to delete the product
-    $sql = "DELETE FROM products WHERE id = ?";
+    $sql = "DELETE FROM product WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $product_id);
 

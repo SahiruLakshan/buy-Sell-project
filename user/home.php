@@ -1,13 +1,11 @@
 <?php
 
 session_start(); // Start the session to manage user login sessions
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
+require '../vendor/autoload.php'; // Include PHPMailer
 include_once("../database/db_connect.php"); // Include the database connection
-
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: /stock/login.php"); // Redirect to login page if the user is not logged in
-//     exit;
-// }
 
 if (isset($_POST['logout'])) {
     session_destroy(); // Destroy the session to log out the user
@@ -20,7 +18,7 @@ $search_term = isset($_POST['search_term']) ? $_POST['search_term'] : ''; // Han
 
 $selected_category = isset($_POST['category']) ? $_POST['category'] : ''; // Handle category selection input for filtering products by category
 
-$sql = "SELECT * FROM products WHERE 1=1"; // Base SQL query to retrieve all products
+$sql = "SELECT * FROM product WHERE 1=1"; // Base SQL query to retrieve all products
 
 
 if ($search_term != '') {
@@ -35,22 +33,84 @@ if ($selected_category != '' && $selected_category != 'All') { // Add a conditio
 // Execute the SQL query to get the filtered products
 $result = $conn->query($sql);
 
-$category_sql = "SELECT DISTINCT category FROM products"; // Fetch distinct categories from the products table for category dropdown
+$category_sql = "SELECT DISTINCT category FROM product"; // Fetch distinct categories from the products table for category dropdown
 $category_result = $conn->query($category_sql);
 
 // Handle order submission
-if (isset($_POST['add_to_cart'])) {
-     // Ensure session is started
+if (isset($_POST['order_product'])) {
     $user_id = $_SESSION['user_id']; // Current user's ID
     $product_id = $_POST['product_id'];
-    $order_date = date('Y-m-d'); // Get the current date in YYYY-MM-DD format
+    $order_date = date('Y-m-d'); // Current date
 
-    // Insert the order into the orders table
-    $order_sql = "INSERT INTO orders (user_id, product_id, order_date) 
+    // Insert the order into the database
+    $order_sql = "INSERT INTO product_orders (user_id, product_id, order_date) 
                   VALUES ('$user_id', '$product_id', '$order_date')";
 
     if ($conn->query($order_sql) === TRUE) {
-        echo "<script>alert('Order has been submitted successfully!');</script>";
+        // Retrieve the auto-generated order ID
+        $order_id = $conn->insert_id;
+
+        // Get the product details from the product table
+        $product_sql = "SELECT brand, model, price FROM product WHERE id = '$product_id'";
+        $product_result = $conn->query($product_sql);
+
+        if ($product_result && $product_result->num_rows > 0) {
+            $product_row = $product_result->fetch_assoc();
+            $product_brand = $product_row['brand'];
+            $product_model = $product_row['model'];
+            $product_price = $product_row['price'];
+
+            // Get the user's email
+            $user_sql = "SELECT email FROM user WHERE id = '$user_id'";
+            $user_result = $conn->query($user_sql);
+
+            if ($user_result && $user_result->num_rows > 0) {
+                $user_row = $user_result->fetch_assoc();
+                $user_email = $user_row['email'];
+
+                // Send order details to the user's email
+                $mail = new PHPMailer(true);
+
+                try {
+                    // Server settings
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com'; // SMTP server
+                    $mail->SMTPAuth = true;
+                    $mail->Username = 'teccom.srilanka@gmail.com'; // Your Gmail
+                    $mail->Password = 'lriahnuzhugqfzan';   // App Password
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port = 587;
+
+                    // Recipients
+                    $mail->setFrom('teccom.srilanka@gmail.com', 'Stock Management System');
+                    $mail->addAddress($user_email);
+
+                    // Content
+                    $mail->isHTML(true);
+                    $mail->Subject = 'Order Confirmation';
+                    $mail->Body = "
+                        <h2>Order Confirmation</h2>
+                        <p>Thank you for your order! Here are your order details:</p>
+                        <ul>
+                            <li><strong>Order ID:</strong> $order_id</li>
+                            <li><strong>Product ID:</strong> $product_id</li>
+                            <li><strong>Brand:</strong> $product_brand</li>
+                            <li><strong>Model:</strong> $product_model</li>
+                            <li><strong>Price:</strong> Rs.$product_price</li>
+                            <li><strong>Order Date:</strong> $order_date</li>
+                        </ul>
+                        <p>We will process your order shortly.</p>
+                    ";
+
+                    $mail->send();
+                    echo "<script>alert('Order has been submitted successfully! Check your email for confirmation.');</script>";
+                } catch (Exception $e) {
+                    echo "<script>alert('Order placed, but failed to send email: {$mail->ErrorInfo}');</script>";
+                }
+            }
+        } else {
+            echo "<script>alert('Product details not found.');</script>";
+        }
     } else {
         echo "<script>alert('Error submitting the order: " . $conn->error . "');</script>";
     }
@@ -69,35 +129,28 @@ $result = $conn->query($sql);
     <link rel="icon" href="/stock/img/icon.png" type="image/x-icon">
     <title>Stock Management System</title>
     <style>
+        /* Base Styling */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 0;
-            background-image: url('../img/bgi.png');
-        }
-
-        .title {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 32px;
             color: #333;
         }
 
+        /* Header */
         .header {
-            background-color: #3498db;
+            background: linear-gradient(135deg, #3498db, #4CAF50);
             color: white;
             padding: 20px;
-            height: 150px;
-            font-size: 28px;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .header span {
-            margin-left: 20px;
+        .header h3 {
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
         }
 
         .logout-btn {
@@ -106,282 +159,159 @@ $result = $conn->query($sql);
             padding: 10px 20px;
             border-radius: 5px;
             text-decoration: none;
-            font-size: 18px;
-            margin-right: 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
         }
 
         .logout-btn:hover {
             background-color: #c0392b;
         }
 
+        /* Search Form */
         .search-form {
-            width: 90%;
-            max-width: 1200px;
+            max-width: 800px;
             margin: 20px auto;
             display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            background-color: #fff;
+            gap: 10px;
+            background: white;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
-        .cart {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            /* Lighter shadow */
-            max-height: 150px;
-            /* Decrease height */
-            overflow-y: auto;
-            /* Enable scrolling for long content */
-            margin-right: 20px;
-            color: #333;
-            width: 250px;
-            /* Decrease the width */
-        }
-
-        .cart h6 {
-            font-size: 16px;
-            /* Smaller font size */
-            color: #2c3e50;
-            margin-bottom: 8px;
-        }
-
-        .cart ul {
-            list-style: none;
-            /* Remove default bullet points */
-            padding-left: 0;
-        }
-
-        .cart li {
-            background-color: #ecf0f1;
-            padding: 8px;
-            /* Less padding for more compact look */
-            margin-bottom: 8px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .cart li h6 {
-            font-size: 14px;
-            /* Smaller font for cart item names */
-            margin: 0;
-        }
-
-        .cart li span {
-            font-size: 12px;
-            /* Smaller font for price and quantity */
-            color: #7f8c8d;
-        }
-
-        .cart .empty-cart-message {
-            text-align: center;
-            font-size: 14px;
-            /* Decrease font size */
-            color: #7f8c8d;
-        }
-
-        .cart h6 {
-            display: flex;
-            align-items: center;
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 8px;
-        }
-
-        .cart svg {
-            margin-right: 8px;
-            /* Space between icon and text */
-            fill: #3498db;
-            /* Color of the icon */
-        }
-
-
-        .cart button {
-            display: block;
-            width: 100%;
-            background-color: #3498db;
-            color: white;
-            padding: 8px;
-            /* Less padding for smaller button */
-            border-radius: 4px;
-            border: none;
-            font-size: 16px;
-            /* Decrease font size */
-            cursor: pointer;
-            margin-top: 8px;
-        }
-
-        .cart button:hover {
-            background-color: #2980b9;
-        }
-
-
-        .cart button {
-            display: block;
-            width: 100%;
-            background-color: #3498db;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .cart button:hover {
-            background-color: #2980b9;
-        }
-
-
 
         .search-form input,
         .search-form select {
-            padding: 10px;
-            font-size: 16px;
-            width: 40%;
-            border-radius: 4px;
+            flex: 1;
+            padding: 12px;
             border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
         }
 
         .search-form button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
+            padding: 12px 20px;
+            background: #4CAF50;
             color: white;
             border-radius: 5px;
             border: none;
+            font-size: 16px;
             cursor: pointer;
+            transition: background 0.3s ease;
         }
 
         .search-form button:hover {
-            background-color: #45a049;
+            background: #45a049;
         }
 
+        /* Product Container */
         .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 20px auto;
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
+        /* Product Card */
         .card {
-            background-color: #fff;
+            background: white;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: calc(25% - 20px);
-            box-sizing: border-box;
-            transition: transform 0.3s ease;
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 300px;
+            height: 450px;
+            margin: 0 auto;
+            /* Center-align smaller cards */
         }
 
         .card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
         .card img {
-            width: 100%;
+            width: 200px;
+            /* Match card width */
             height: 150px;
+            /* Fixed height */
             object-fit: cover;
-            border-radius: 4px;
+            /* Maintain aspect ratio and fill */
         }
 
         .card h3 {
             font-size: 18px;
-            color: #333;
-            margin: 10px 0 5px;
-        }
-
-        .card h4 {
-            font-size: 15px;
-            color: #333;
-            margin: 10px 0 5px;
-        }
-
-        .card p {
-            font-size: 14px;
-            color: #666;
-            margin: 5px 0;
+            margin: 10px 0;
+            color: #3498db;
         }
 
         .card .category {
-            font-size: 16px;
-            color: #007BFF;
-            margin: 10px 0;
-            font-weight: bold;
+            font-size: 14px;
+            color: #7f8c8d;
         }
 
         .card .stock {
-            font-size: 14px;
-            color: #FF5722;
-            margin-bottom: 10px;
+            font-size: 16px;
+            color: #e74c3c;
+            font-weight: bold;
         }
 
-        /* Container to center the button */
         .button-container {
-            text-align: center;
-            margin-top: 10px;
-            /* Adds some spacing above the button */
+            margin: 10px 0;
         }
 
-        /* Styles for the button */
         .btn {
             display: inline-block;
             padding: 10px 15px;
-            background-color: #4CAF50;
+            background: #3498db;
             color: white;
             border-radius: 5px;
-            text-align: center;
             text-decoration: none;
+            font-size: 16px;
             cursor: pointer;
+            transition: background 0.3s ease;
         }
 
         .btn:hover {
-            background-color: #45a049;
+            background: #2980b9;
         }
 
-        /* Modal CSS */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            /* Center the modal */
+            width: 90%;
+            /* Default width */
+            max-width: 500px;
+            /* Limit maximum width */
+            background: rgba(255, 255, 255, 1);
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto;
+            background: white;
             padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
+            border-radius: 8px;
             max-width: 500px;
+            width: 90%;
             text-align: center;
         }
 
         .close {
-            color: #aaa;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
             float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
         }
 
         .modal img {
@@ -389,27 +319,30 @@ $result = $conn->query($sql);
             height: auto;
             margin-bottom: 20px;
         }
-
     </style>
+
 </head>
 
 <body>
     <div class="header">
         <span>
-        <?php if (isset($_SESSION['name'])): ?>
-        
-        <h3>Welcome,<?php echo htmlspecialchars($_SESSION['name']); ?> Buying & Selling System</h3>
-        <form method="POST" style="margin: 0;">
-            <button type="submit" name="logout" class="logout-btn">Logout</button>
-        </form>
-    <?php else: ?>
-        <!-- Show login and register if not logged in -->
-        <a href="register.php" class="btn btn-danger">Register</a>
-        <a href="login.php" class="btn btn-success">Login</a>
-    <?php endif; ?>
-            
-        </span>
+            <?php if (isset($_SESSION['name'])): ?>
 
+                <h3 style="text-transform: uppercase;">Welcome,<?php echo htmlspecialchars($_SESSION['name']); ?> to Buying & Selling System's Product View Section</h3>
+                <span style="display: flex; gap: 10px; justify-content:center;">
+                    <form method="POST" style="margin: 0;">
+                        <button type="submit" name="logout" class="logout-btn" style="margin: 0;">Logout</button>
+                    </form>
+                    <a href="../index.php" class="btn btn-primary" style="text-decoration: none; padding: 5px 20px; background-color: #007bff; color: white; border-radius: 5px; display: inline-block;">Back To Home</a>
+                </span>
+
+
+            <?php else: ?>
+                <!-- Show login and register if not logged in -->
+                <a href="../register.php" class="btn btn-danger">Register</a>
+                <a href="../login.php" class="btn btn-success">Login</a>
+            <?php endif; ?>
+        </span>
     </div>
 
     <form class="search-form" method="POST" action="">
@@ -431,7 +364,7 @@ $result = $conn->query($sql);
     </form>
 
     <div class="container">
-    <?php
+        <?php
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='card'>";
@@ -443,7 +376,7 @@ $result = $conn->query($sql);
                 echo "<a href='#' style='margin-bottom:20px' class='btn' 
                       onclick='viewDetails(`{$row['photo']}`, `{$row['brand']} {$row['model']}`, `{$row['category']}`, 
                       `{$row['description']}`, `{$row['price']}`)'>View Details</a>";
-                
+
                 // Check if the user is logged in before showing the "Order Now" button
                 if (isset($_SESSION['user_id'])) {
                     echo "<form method='POST' action=''>
@@ -451,8 +384,8 @@ $result = $conn->query($sql);
                               <input type='hidden' name='product_brand' value='{$row['brand']}'>
                               <input type='hidden' name='product_model' value='{$row['model']}'>
                               <input type='hidden' name='product_price' value='{$row['price']}'>
-                              <button type='submit' name='add_to_cart' class='btn' 
-                                      style='background-color: #4CAF50;'>Order Now</button>
+                              <button type='submit' onclick='return confirmOrder();' name='order_product' class='btn' 
+                                      style='background-color: #4CAF50;' >Order Now</button>
                           </form>";
                 } else {
                     echo "<a href='/stock/login.php' class='btn' style='background-color: #e74c3c;'>Login to Order</a>";
@@ -464,7 +397,7 @@ $result = $conn->query($sql);
         } else {
             echo "<p>No products found</p>";
         }
-?>
+        ?>
 
     </div>
 
@@ -480,7 +413,11 @@ $result = $conn->query($sql);
             <p id="modalPrice"></p>
         </div>
     </div>
-
+    <script>
+        function confirmOrder() {
+            return confirm("Are you sure you want to place this order?");
+        }
+    </script>
     <script>
         // Get modal and close button
         var modal = document.getElementById('productModal');

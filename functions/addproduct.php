@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {// Check if the form was submitted us
     move_uploaded_file($photo_temp, $upload_dir . $photo); // Move the uploaded file to the destination folder
 
     // Prepare the SQL statement to insert new product data into the 'products' table
-    $sql = "INSERT INTO products (user_id,category, brand, model, price, photo, description, colors)
+    $sql = "INSERT INTO product (user_id,category, brand, model, price, photo, description, colors)
             VALUES ('$user_id','$category', '$brand', '$model', '$price', '$photo', '$description', '$colors')";
 
     // Execute the SQL query and check if the insert was successful

@@ -17,7 +17,7 @@ $image = $_SESSION['image'] ?? 'default-profile.png'; // Use default image if no
 
 // Fetch products submitted by the user
 $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session
-$sql = "SELECT id, category, brand, model, price, description, colors, photo FROM products WHERE user_id = ?";
+$sql = "SELECT id, category, brand, model, price, description, colors, photo FROM product WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();

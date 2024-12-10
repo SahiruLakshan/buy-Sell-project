@@ -15,7 +15,7 @@ if ($product_id == 0) {
 }
 
 // Fetch product details
-$sql = "SELECT * FROM products WHERE id = ?";
+$sql = "SELECT * FROM product WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $product_id);
 $stmt->execute();

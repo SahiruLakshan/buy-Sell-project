@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     // Prepare the SQL statement to fetch user by email
-    $sql = "SELECT * FROM users WHERE email = ?";
+    $sql = "SELECT * FROM user WHERE email = ?";
     $stmt = $conn->prepare($sql); // Prepare the SQL statement
     $stmt->bind_param("s", $email); // Bind the email to the prepared statement
     $stmt->execute(); // Execute the statement

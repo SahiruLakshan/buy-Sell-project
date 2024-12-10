@@ -1,15 +1,23 @@
 <?php
 include_once("database/db_connect.php");
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php'; // Autoload PHPMailer
+
+include_once("database/db_connect.php");
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $address = $_POST['address'];
     $phone_number = $_POST['phone_number'];
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT); // Encrypt password
+    $token = bin2hex(random_bytes(16)); // Generate a unique token
 
     // Check if email already exists
-    $check_email = $conn->prepare("SELECT id FROM users WHERE email = ?");
+    $check_email = $conn->prepare("SELECT id FROM user WHERE email = ?");
     $check_email->bind_param("s", $email);
     $check_email->execute();
     $check_email->store_result();
@@ -17,18 +25,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($check_email->num_rows > 0) {
         echo "<script>alert('Email already exists');</script>";
     } else {
-        // Insert new user into database
-        $sql = "INSERT INTO users (name, email,address,phone_number, password) VALUES (?, ?, ?, ?, ?)";
+        // Insert new user into database with verification token
+        $sql = "INSERT INTO user (name, email, address, phone_number, password, verification_token, is_verified) VALUES (?, ?, ?, ?, ?, ?, 0)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssss", $name,$email,$address,$phone_number,$password);
+        $stmt->bind_param("ssssss", $name, $email, $address, $phone_number, $password, $token);
         
         if ($stmt->execute()) {
-            echo "<script>alert('Registration successful!'); window.location.href='login.php';</script>";
+            // Send verification email using PHPMailer
+            $mail = new PHPMailer(true);
+
+            try {
+                // Server settings
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com'; // Set your SMTP server
+                $mail->SMTPAuth = true;
+                $mail->Username = 'teccom.srilanka@gmail.com'; // Your email address
+                $mail->Password = 'lriahnuzhugqfzan'; // Your email password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+
+                // Recipients
+                $mail->setFrom('teccom.srilanka@gmail.com', 'Stock Management System');
+                $mail->addAddress($email, $name);
+
+                // Content
+                $mail->isHTML(true);
+                $mail->Subject = 'Email Verification';
+                $mail->Body = "
+                    Hi $name,<br><br>
+                    Thank you for Registering. Please verify your email by clicking the link below:<br>
+                    <a href='http://localhost/stock/verify.php?token=$token'>Click here to Verify Email</a>
+                ";
+
+                $mail->send();
+                echo "<script>alert('Registration successful! Check your email to verify your account.'); window.location.href='verifyalert.php';</script>";
+            } catch (Exception $e) {
+                echo "Error sending email: {$mail->ErrorInfo}";
+            }
         } else {
             echo "Error: " . $stmt->error;
         }
     }
 }
+
+
 ?>
 
 <!DOCTYPE html>
