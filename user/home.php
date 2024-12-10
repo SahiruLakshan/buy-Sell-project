@@ -4,16 +4,14 @@ session_start(); // Start the session to manage user login sessions
 
 include_once("../database/db_connect.php"); // Include the database connection
 
-// // Check if the user is logged in, otherwise redirect to the login page
-if (!isset($_SESSION['user_id'])) {
-    header("Location: /stock/login.php"); // Redirect to login page if the user is not logged in
-    exit;
-}
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: /stock/login.php"); // Redirect to login page if the user is not logged in
+//     exit;
+// }
 
-// // Handle logout functionality
 if (isset($_POST['logout'])) {
     session_destroy(); // Destroy the session to log out the user
-    header("Location: /stock/login.php"); // Redirect to the login page after logout
+    header("Location: /stock/index.php"); // Redirect to the login page after logout
     exit; // Ensure no further code is executed
 }
 
@@ -398,12 +396,20 @@ $result = $conn->query($sql);
 <body>
     <div class="header">
         <span>
-            <h3>Welcome,Buying & Selling System</h3>
-        </span>
-
+        <?php if (isset($_SESSION['name'])): ?>
+        
+        <h3>Welcome,<?php echo htmlspecialchars($_SESSION['name']); ?> Buying & Selling System</h3>
         <form method="POST" style="margin: 0;">
             <button type="submit" name="logout" class="logout-btn">Logout</button>
         </form>
+    <?php else: ?>
+        <!-- Show login and register if not logged in -->
+        <a href="register.php" class="btn btn-danger">Register</a>
+        <a href="login.php" class="btn btn-success">Login</a>
+    <?php endif; ?>
+            
+        </span>
+
     </div>
 
     <form class="search-form" method="POST" action="">
@@ -425,7 +431,7 @@ $result = $conn->query($sql);
     </form>
 
     <div class="container">
-        <?php
+    <?php
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='card'>";
@@ -437,21 +443,29 @@ $result = $conn->query($sql);
                 echo "<a href='#' style='margin-bottom:20px' class='btn' 
                       onclick='viewDetails(`{$row['photo']}`, `{$row['brand']} {$row['model']}`, `{$row['category']}`, 
                       `{$row['description']}`, `{$row['price']}`)'>View Details</a>";
-                echo "<form method='POST' action=''>
-                          <input type='hidden' name='product_id' value='{$row['id']}'>
-                          <input type='hidden' name='product_brand' value='{$row['brand']}'>
-                          <input type='hidden' name='product_model' value='{$row['model']}'>
-                          <input type='hidden' name='product_price' value='{$row['price']}'>
-                          <button type='submit' name='add_to_cart' class='btn' 
-                                  style='background-color: #4CAF50;'>Order Now</button>
-                      </form>";
+                
+                // Check if the user is logged in before showing the "Order Now" button
+                if (isset($_SESSION['user_id'])) {
+                    echo "<form method='POST' action=''>
+                              <input type='hidden' name='product_id' value='{$row['id']}'>
+                              <input type='hidden' name='product_brand' value='{$row['brand']}'>
+                              <input type='hidden' name='product_model' value='{$row['model']}'>
+                              <input type='hidden' name='product_price' value='{$row['price']}'>
+                              <button type='submit' name='add_to_cart' class='btn' 
+                                      style='background-color: #4CAF50;'>Order Now</button>
+                          </form>";
+                } else {
+                    echo "<a href='/stock/login.php' class='btn' style='background-color: #e74c3c;'>Login to Order</a>";
+                }
+
                 echo "</div>";
                 echo "</div>";
             }
         } else {
             echo "<p>No products found</p>";
         }
-        ?>
+?>
+
     </div>
 
     <!-- Modal -->

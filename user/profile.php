@@ -36,7 +36,7 @@ $stmt->close();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         .profile-container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 50px auto;
             padding: 20px;
             border: 1px solid #ddd;
@@ -44,9 +44,11 @@ $stmt->close();
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+
         .profile-container h2 {
             margin-bottom: 20px;
         }
+
         .profile-image {
             width: 150px;
             height: 150px;
@@ -54,22 +56,28 @@ $stmt->close();
             object-fit: cover;
             margin-bottom: 20px;
         }
+
         .profile-info {
             font-size: 1.1em;
             margin-bottom: 10px;
             text-align: left;
         }
+
         .products-table {
             margin-top: 30px;
         }
-        .products-table th, .products-table td {
+
+        .products-table th,
+        .products-table td {
             text-align: left;
         }
+
         .product-photo {
             width: 100px;
             height: 100px;
             object-fit: cover;
         }
+
         .orders-table {
             margin-top: 30px;
         }
@@ -108,7 +116,7 @@ $stmt->close();
                             <th>Description</th>
                             <th>Colors</th>
                             <th>Photo</th>
-                            <th>Actions</th>
+                            <th style="width: 200px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -123,14 +131,15 @@ $stmt->close();
                                 <td>
                                     <img src="../uploads/<?php echo htmlspecialchars($product['photo']); ?>" alt="Product Photo" class="product-photo">
                                 </td>
-                                <td>
-                                    <!-- Show Orders Button -->
-                                    <button class="btn btn-info" onclick="showOrders(<?php echo $product['id']; ?>)">Show Orders</button>
+                                <td style="text-align: center; white-space: nowrap;"> <!-- Center buttons and prevent wrapping -->
+                                    <button class="btn btn-info me-2" onclick="showOrders(<?php echo $product['id']; ?>)">Show Orders</button>
+                                    <button class="btn btn-danger" onclick="deleteProduct(<?php echo $product['id']; ?>)">Delete Product</button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+
             <?php else: ?>
                 <p class="text-warning">No products submitted yet.</p>
             <?php endif; ?>
@@ -142,11 +151,12 @@ $stmt->close();
             <table class="table table-striped table-bordered">
                 <thead class="table-dark">
                     <tr>
-                        <th>User Name</th>
+                        <th>Customer Name</th>
                         <th>Email</th>
                         <th>Address</th>
                         <th>Phone</th>
-                        <th>Order Date</th>
+                        <th style="width: 100px;">Order Date</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="ordersBody">
@@ -164,10 +174,9 @@ $stmt->close();
 
     <script>
         function showOrders(productId) {
-            // Fetch orders for the selected product using AJAX
             const xhr = new XMLHttpRequest();
             xhr.open('GET', 'fetch_orders.php?product_id=' + productId, true);
-            xhr.onload = function () {
+            xhr.onload = function() {
                 if (xhr.status === 200) {
                     const orders = JSON.parse(xhr.responseText);
                     const ordersBody = document.getElementById('ordersBody');
@@ -177,26 +186,78 @@ $stmt->close();
                         orders.forEach(order => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                <td>${order.name}</td>
-                                <td>${order.email}</td>
-                                <td>${order.address}</td>
-                                <td>${order.phone}</td>
-                                <td>${order.order_date}</td>
-                            `;
+                        <td>${order.name}</td>
+                        <td>${order.email}</td>
+                        <td>${order.address}</td>
+                        <td>${order.phone}</td>
+                        <td>${order.order_date}</td>
+                        <td>
+                            <button style="text-align: center; white-space: nowrap;" class="btn btn-success complete-order-btn" 
+                                    ${order.status === 'Complete' ? 'disabled' : ''} 
+                                    onclick="completeOrder(${order.order_id}, this)">
+                                ${order.status === 'Complete' ? 'Completed' : 'Complete Order'}
+                            </button>
+                        </td>
+                    `;
                             ordersBody.appendChild(row);
                         });
                     } else {
                         const row = document.createElement('tr');
-                        row.innerHTML = '<td colspan="5">No orders found for this product.</td>';
+                        row.innerHTML = '<td colspan="7">No orders found for this product.</td>';
                         ordersBody.appendChild(row);
                     }
 
-                    // Show the orders table
                     document.getElementById('ordersTable').style.display = 'block';
                 }
             };
             xhr.send();
         }
+
+        function completeOrder(orderId, button) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'complete_order.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        button.innerText = 'Completed';
+                        button.disabled = true;
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-secondary');
+                    } else {
+                        alert('Failed to complete the order. Please try again.');
+                    }
+                }
+            };
+            xhr.send('order_id=' + orderId);
+        }
+
+        function deleteProduct(productId) {
+        if (confirm("Are you sure you want to delete this product?")) {
+            // Create an XMLHttpRequest
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "delete_product.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+            // Handle the response
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload(); // Reload the page to update the product list
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                }
+            };
+
+            // Send the request with product_id
+            xhr.send("product_id=" + productId);
+        }
+    }
+
     </script>
 </body>
 
