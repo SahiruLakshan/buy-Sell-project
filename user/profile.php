@@ -107,12 +107,12 @@ $stmt->close();
                     <?php if (isset($_SESSION['name'])): ?>
                         <!-- Welcome message and buttons aligned to the right -->
                         <span class="text-success me-3">Welcome, <strong><?php echo htmlspecialchars($_SESSION['name']); ?></strong></span>
-                        <a href="./user/profile.php" class="btn btn-info btn-sm me-2">Profile</a>
-                        <a href="logout.php" class="btn btn-warning btn-sm">Logout</a>
+                        <a href="../user/profile.php" class="btn btn-info btn-sm me-2">Profile</a>
+                        <a href="../logout.php" class="btn btn-warning btn-sm">Logout</a>
                     <?php else: ?>
                         <!-- Login and register buttons -->
-                        <a href="register.php" class="btn btn-danger btn-sm me-2">Register</a>
-                        <a href="login.php" class="btn btn-success btn-sm">Login</a>
+                        <a href="../register.php" class="btn btn-danger btn-sm me-2">Register</a>
+                        <a href="../login.php" class="btn btn-success btn-sm">Login</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -178,7 +178,8 @@ $stmt->close();
                                 </td>
                                 <td style="text-align: center; white-space: nowrap;">
                                     <button class="btn btn-info btn-sm me-2" onclick="showOrders(<?php echo $product['id']; ?>)">Show Orders</button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(<?php echo $product['id']; ?>)">Delete Product</button>
+                                    <a class="btn btn-warning btn-sm me-2" href="../functions/editproduct.php?id=<?= $product['id']; ?>">Edit</a>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(<?php echo $product['id']; ?>)">Delete</button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

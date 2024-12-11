@@ -1,17 +1,17 @@
 <?php
 
-include_once("../database/db_connect.php");// Include the database connection file
+include_once("../database/db_connect.php"); // Include the database connection file
 
-session_start();// Start session to manage user sessions
+session_start(); // Start session to manage user sessions
 
-if (!isset($_SESSION['user_id'])) {// Check if the user is logged in and is an admin (user_type == 1), otherwise redirect to login page
+if (!isset($_SESSION['user_id'])) {
     header("Location: /stock/login.php"); // Redirect to login if not authorized
     exit; // Ensure no further code is executed
 }
 
 $success_message = '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {// Check if the form was submitted using the POST method
+if ($_SERVER["REQUEST_METHOD"] == "POST") { // Check if the form was submitted using the POST method
     $user_id = $_SESSION['user_id'];
     $category = $_POST['category'];
     $brand = $_POST['brand'];
@@ -53,8 +53,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {// Check if the form was submitted us
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/stock/img/icon.png" type="image/x-icon">
-
-    <title>Stock Management - Office Chairs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Buying & Selling System</title>
     <style>
         body {
             background-image: url('../img/bgi.png');
@@ -120,7 +120,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {// Check if the form was submitted us
 
 <body>
     <form action="" method="POST" enctype="multipart/form-data" id="chairForm">
-        <h1>Add Chairs to Stock</h1>
+        <span>
+            <a href="../index.php" class="btn btn-primary">Back to Home</a>
+            <h2 style="text-align: center;margin-top:20px">Add Products to Stock</h2>
+        </span>
+
 
         <label for="category">Category:</label>
         <select name="category" id="category" required>
@@ -152,6 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {// Check if the form was submitted us
 
         <input type="submit" value="Add Chair">
     </form>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN6jIeHz" crossorigin="anonymous"></script>
 </body>
 
 </html>

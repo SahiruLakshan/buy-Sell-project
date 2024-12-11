@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <style>
         body { 
             font-family: Arial, sans-serif;
-            background-image: url('img/bgi.png'); 
+            background-image: url('https://media.licdn.com/dms/image/v2/D4E12AQFfnhRzC8NDqA/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1708313622003?e=2147483647&v=beta&t=uexCt_3lIMuj8YoAQQIUbWD76ZKkAldpqxqeF0TjRrM'); 
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         button { 
             width: 100%; 
             padding: 10px; 
-            background-color: #4CAF50; 
+            background-color: blue; 
             color: white; 
             border: none; 
             border-radius: 5px; 
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: red;
         }
 
         p {
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
 
 <div class="form-container">
-    <h1 style="text-align: center;">Stock Management System</h1>
+    <h1 style="text-align: center;">Buy & Sell Platform</h1>
     <h2>Register</h2>
     <form method="POST" action="">
         <input type="text" name="name" placeholder="Full Name" required>

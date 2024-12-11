@@ -176,7 +176,7 @@ $result = $conn->query($sql);
         }
 
         /* Product Container */
-        .container {
+        #container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 30px;
@@ -290,7 +290,7 @@ $result = $conn->query($sql);
 </head>
 
 <body>
-<nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold text-primary" href="#">B & S PLATFORM</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
@@ -299,23 +299,23 @@ $result = $conn->query($sql);
             <div class="collapse navbar-collapse" id="navbarScroll">
                 <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
                     <li class="nav-item">
-                        <a class="nav-link active fw-semibold" href="#">Home</a>
+                        <a class="nav-link active fw-semibold" href="../index.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" href="#">Contact</a>
+                        <a class="nav-link fw-semibold" href="../contact.php">Contact</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" href="#">About</a>
+                        <a class="nav-link fw-semibold" href="../about.php">About</a>
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">
                     <?php if (isset($_SESSION['name'])): ?>
                         <span class="text-success me-3">Welcome, <strong><?php echo htmlspecialchars($_SESSION['name']); ?></strong></span>
-                        <a href="./user/profile.php" class="btn btn-info btn-sm me-2">Profile</a>
-                        <a href="logout.php" class="btn btn-warning btn-sm">Logout</a>
+                        <a href="../user/profile.php" class="btn btn-info btn-sm me-2">Profile</a>
+                        <a href="../logout.php" class="btn btn-warning btn-sm">Logout</a>
                     <?php else: ?>
-                        <a href="register.php" class="btn btn-danger btn-sm me-2">Register</a>
-                        <a href="login.php" class="btn btn-success btn-sm">Login</a>
+                        <a href="../register.php" class="btn btn-danger btn-sm me-2">Register</a>
+                        <a href="../login.php" class="btn btn-success btn-sm">Login</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -338,7 +338,7 @@ $result = $conn->query($sql);
         <button type="submit">Search</button>
     </form>
 
-    <div class="container">
+    <div class="container" id="container">
         <?php
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -369,56 +369,7 @@ $result = $conn->query($sql);
             echo "<p>No products found</p>";
         }
         ?>
-
     </div>
-
-    <!-- Modal -->
-    <div id="productModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <img id="modalImage" src="" alt="Product Image">
-            <h1 id="modalTitle"></h1>
-            <p id="modalCategory"></p>
-            <p id="modalDescription"></p>
-            <p id="modalStock"></p>
-            <p id="modalPrice"></p>
-        </div>
-    </div>
-
-    
-
-    <script>
-        function confirmOrder() {
-            return confirm("Are you sure you want to place this order?");
-        }
-    </script>
-    <script>
-        // Get modal and close button
-        var modal = document.getElementById('productModal');
-        var span = document.getElementsByClassName('close')[0];
-
-        // When the user clicks on close (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        // Function to display product details in the modal
-        function viewDetails(photo, title, category, description, price) {
-            document.getElementById('modalImage').src = '../uploads/' + photo;
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalCategory').innerText = 'Category: ' + category;
-            document.getElementById('modalDescription').innerText = description;
-            document.getElementById('modalPrice').innerText = 'Price: Rs. ' + price + '/=';
-            modal.style.display = "block";
-        }
-    </script>
     <footer class="text-center text-lg-start bg-dark" style="color: white;">
         <!-- Section: Social media -->
         <section class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
@@ -535,6 +486,54 @@ $result = $conn->query($sql);
         </div>
         <!-- Copyright -->
     </footer>
+    <!-- Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modalImage" src="" alt="Product Image">
+            <h1 id="modalTitle"></h1>
+            <p id="modalCategory"></p>
+            <p id="modalDescription"></p>
+            <p id="modalStock"></p>
+            <p id="modalPrice"></p>
+        </div>
+    </div>
+
+
+
+    <script>
+        function confirmOrder() {
+            return confirm("Are you sure you want to place this order?");
+        }
+    </script>
+    <script>
+        // Get modal and close button
+        var modal = document.getElementById('productModal');
+        var span = document.getElementsByClassName('close')[0];
+
+        // When the user clicks on close (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Function to display product details in the modal
+        function viewDetails(photo, title, category, description, price) {
+            document.getElementById('modalImage').src = '../uploads/' + photo;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalCategory').innerText = 'Category: ' + category;
+            document.getElementById('modalDescription').innerText = description;
+            document.getElementById('modalPrice').innerText = 'Price: Rs. ' + price + '/=';
+            modal.style.display = "block";
+        }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN6jIeHz" crossorigin="anonymous"></script>
 
 </body>
