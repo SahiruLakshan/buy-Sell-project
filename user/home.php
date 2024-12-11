@@ -127,45 +127,16 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/stock/img/icon.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <title>Stock Management System</title>
     <style>
         /* Base Styling */
         body {
-            font-family: 'Poppins', Arial, sans-serif;
-            background-color: #f0f2f5;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 0;
             color: #333;
-        }
-
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #3498db, #4CAF50);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h3 {
-            margin: 0;
-            font-size: 24px;
-            text-transform: uppercase;
-        }
-
-        .logout-btn {
-            background-color: #e74c3c;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .logout-btn:hover {
-            background-color: #c0392b;
+            font-family: 'Arial', sans-serif;
         }
 
         /* Search Form */
@@ -174,24 +145,24 @@ $result = $conn->query($sql);
             margin: 20px auto;
             display: flex;
             gap: 10px;
-            background: white;
+            background: #fff;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .search-form input,
         .search-form select {
             flex: 1;
             padding: 12px;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 16px;
         }
 
         .search-form button {
             padding: 12px 20px;
-            background: #4CAF50;
+            background: #28a745;
             color: white;
             border-radius: 5px;
             border: none;
@@ -201,14 +172,14 @@ $result = $conn->query($sql);
         }
 
         .search-form button:hover {
-            background: #45a049;
+            background: #218838;
         }
 
         /* Product Container */
         .container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 30px;
             padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
@@ -216,35 +187,36 @@ $result = $conn->query($sql);
 
         /* Product Card */
         .card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            width: 300px;
-            height: 450px;
+            width: 280px;
+            height: 480px;
             margin: 0 auto;
-            /* Center-align smaller cards */
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
         }
 
         .card img {
-            width: 200px;
-            /* Match card width */
-            height: 150px;
-            /* Fixed height */
+            width: 100%;
+            height: 200px;
             object-fit: cover;
-            /* Maintain aspect ratio and fill */
+            transition: transform 0.3s ease;
+        }
+
+        .card img:hover {
+            transform: scale(1.1);
         }
 
         .card h3 {
-            font-size: 18px;
-            margin: 10px 0;
+            font-size: 20px;
+            margin: 15px 0;
             color: #3498db;
         }
 
@@ -254,21 +226,21 @@ $result = $conn->query($sql);
         }
 
         .card .stock {
-            font-size: 16px;
+            font-size: 18px;
             color: #e74c3c;
             font-weight: bold;
         }
 
         .button-container {
-            margin: 10px 0;
+            margin: 20px 0;
         }
 
         .btn {
             display: inline-block;
-            padding: 10px 15px;
+            padding: 5px 10px;
             background: #3498db;
             color: white;
-            border-radius: 5px;
+            border-radius: 6px;
             text-decoration: none;
             font-size: 16px;
             cursor: pointer;
@@ -286,12 +258,9 @@ $result = $conn->query($sql);
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            /* Center the modal */
             width: 90%;
-            /* Default width */
             max-width: 500px;
-            /* Limit maximum width */
-            background: rgba(255, 255, 255, 1);
+            background: #fff;
             z-index: 1000;
             padding: 20px;
             border-radius: 10px;
@@ -299,11 +268,7 @@ $result = $conn->query($sql);
         }
 
         .modal-content {
-            background: white;
             padding: 20px;
-            border-radius: 8px;
-            max-width: 500px;
-            width: 90%;
             text-align: center;
         }
 
@@ -321,33 +286,44 @@ $result = $conn->query($sql);
         }
     </style>
 
+
 </head>
 
 <body>
-    <div class="header">
-        <span>
-            <?php if (isset($_SESSION['name'])): ?>
-
-                <h3 style="text-transform: uppercase;">Welcome,<?php echo htmlspecialchars($_SESSION['name']); ?> to Buying & Selling System's Product View Section</h3>
-                <span style="display: flex; gap: 10px; justify-content:center;">
-                    <form method="POST" style="margin: 0;">
-                        <button type="submit" name="logout" class="logout-btn" style="margin: 0;">Logout</button>
-                    </form>
-                    <a href="../index.php" class="btn btn-primary" style="text-decoration: none; padding: 5px 20px; background-color: #007bff; color: white; border-radius: 5px; display: inline-block;">Back To Home</a>
-                </span>
-
-
-            <?php else: ?>
-                <!-- Show login and register if not logged in -->
-                <a href="../register.php" class="btn btn-danger">Register</a>
-                <a href="../login.php" class="btn btn-success">Login</a>
-            <?php endif; ?>
-        </span>
-    </div>
+<nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold text-primary" href="#">B & S PLATFORM</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarScroll">
+                <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold" href="#">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold" href="#">About</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <?php if (isset($_SESSION['name'])): ?>
+                        <span class="text-success me-3">Welcome, <strong><?php echo htmlspecialchars($_SESSION['name']); ?></strong></span>
+                        <a href="./user/profile.php" class="btn btn-info btn-sm me-2">Profile</a>
+                        <a href="logout.php" class="btn btn-warning btn-sm">Logout</a>
+                    <?php else: ?>
+                        <a href="register.php" class="btn btn-danger btn-sm me-2">Register</a>
+                        <a href="login.php" class="btn btn-success btn-sm">Login</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <form class="search-form" method="POST" action="">
         <input type="text" name="search_term" placeholder="Search by brand or model" value="<?php echo $search_term; ?>">
-
         <select name="category">
             <option value="All">All Categories</option>
             <?php
@@ -359,7 +335,6 @@ $result = $conn->query($sql);
             }
             ?>
         </select>
-
         <button type="submit">Search</button>
     </form>
 
@@ -370,25 +345,21 @@ $result = $conn->query($sql);
                 echo "<div class='card'>";
                 echo "<img src='../uploads/{$row['photo']}' alt='{$row['model']}'>";
                 echo "<h3>{$row['brand']} {$row['model']}</h3>";
-                echo "<p class='category' style='color: black;'>Category: {$row['category']}</p>";
+                echo "<p class='category'>Category: {$row['category']}</p>";
                 echo "<h4 class='stock'>Price: Rs. {$row['price']}/=</h4>";
                 echo "<div class='button-container'>";
-                echo "<a href='#' style='margin-bottom:20px' class='btn' 
-                      onclick='viewDetails(`{$row['photo']}`, `{$row['brand']} {$row['model']}`, `{$row['category']}`, 
-                      `{$row['description']}`, `{$row['price']}`)'>View Details</a>";
+                echo "<a href='#' class='btn' style='margin-bottom:10px' onclick='viewDetails(`{$row['photo']}`, `{$row['brand']} {$row['model']}`, `{$row['category']}`, `{$row['description']}`, `{$row['price']}`)'>View Details</a><br/>";
 
-                // Check if the user is logged in before showing the "Order Now" button
                 if (isset($_SESSION['user_id'])) {
                     echo "<form method='POST' action=''>
                               <input type='hidden' name='product_id' value='{$row['id']}'>
                               <input type='hidden' name='product_brand' value='{$row['brand']}'>
                               <input type='hidden' name='product_model' value='{$row['model']}'>
                               <input type='hidden' name='product_price' value='{$row['price']}'>
-                              <button type='submit' onclick='return confirmOrder();' name='order_product' class='btn' 
-                                      style='background-color: #4CAF50;' >Order Now</button>
+                              <button type='submit' onclick='return confirmOrder();' name='order_product' class='btn btn-sm' style='background-color: #4CAF50;' >Order Now</button>
                           </form>";
                 } else {
-                    echo "<a href='/stock/login.php' class='btn' style='background-color: #e74c3c;'>Login to Order</a>";
+                    echo "<a href='/stock/login.php' class='btn btn-sm' style='background-color: #e74c3c;'>Login to Order</a>";
                 }
 
                 echo "</div>";
@@ -413,6 +384,9 @@ $result = $conn->query($sql);
             <p id="modalPrice"></p>
         </div>
     </div>
+
+    
+
     <script>
         function confirmOrder() {
             return confirm("Are you sure you want to place this order?");
@@ -445,6 +419,124 @@ $result = $conn->query($sql);
             modal.style.display = "block";
         }
     </script>
+    <footer class="text-center text-lg-start bg-dark" style="color: white;">
+        <!-- Section: Social media -->
+        <section class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
+            <!-- Left -->
+            <div class="me-5 d-none d-lg-block">
+                <span>Get connected with us on social networks:</span>
+            </div>
+            <!-- Left -->
+
+            <!-- Right -->
+            <div>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+            <!-- Right -->
+        </section>
+        <!-- Section: Social media -->
+
+        <!-- Section: Links  -->
+        <section class="">
+            <div class="container text-center text-md-start mt-5">
+                <!-- Grid row -->
+                <div class="row mt-3">
+                    <!-- Grid column -->
+                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                        <!-- Content -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            B&S PVT(LTD)
+                        </h6>
+                        <p>
+                            Here you can use rows and columns to organize your footer content. Lorem ipsum
+                            dolor sit amet, consectetur adipisicing elit.
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+
+                    <!-- Grid column -->
+                    <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            Products
+                        </h6>
+                        <p>
+                            Chairs
+                        </p>
+                        <p>
+                            Mobile Phones
+                        </p>
+                        <p>
+                            Vehicles
+                        </p>
+                        <p>
+                            Laptops
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+
+                    <!-- Grid column -->
+                    <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            Useful links
+                        </h6>
+                        <p>
+                            <a href="index.php" class="text-reset">Home</a>
+                        </p>
+                        <p>
+                            <a href="about.php" class="text-reset">About</a>
+                        </p>
+                        <p>
+                            <a href="contact.php" class="text-reset">Contact</a>
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+
+                    <!-- Grid column -->
+                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold mb-4">Contact</h6>
+                        <p>Pitipana, Homgama</p>
+                        <p>
+                            buyandsell123@gmail.com
+                        </p>
+                        <p>+ 01 234 567 88</p>
+                        <p>+ 01 234 567 89</p>
+                    </div>
+                    <!-- Grid column -->
+                </div>
+                <!-- Grid row -->
+            </div>
+        </section>
+        <!-- Section: Links  -->
+
+        <!-- Copyright -->
+        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+            © 2021 Copyright:
+            <a class="text-reset fw-bold" href="https://mdbootstrap.com/">MDBootstrap.com</a>
+        </div>
+        <!-- Copyright -->
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN6jIeHz" crossorigin="anonymous"></script>
+
 </body>
 
 </html>

@@ -14,48 +14,44 @@ session_start(); // Start the session to handle user login state
 
 <body>
 
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Navbar scroll</a>
+            <a class="navbar-brand fw-bold text-primary" href="#">B & S PLATFORM</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarScroll">
                 <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        <a class="nav-link fw-semibold" href="index.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Link
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        </ul>
+                        <a class="nav-link fw-semibold" href="contact.php">Contact</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link disabled" aria-disabled="true">Link</a>
+                        <a class="nav-link fw-semibold" href="about.php">About</a>
                     </li>
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
-                </form>
+                <div class="d-flex align-items-center">
+                    <?php if (isset($_SESSION['name'])): ?>
+                        <!-- Welcome message and buttons aligned to the right -->
+                        <span class="text-success me-3">Welcome, <strong><?php echo htmlspecialchars($_SESSION['name']); ?></strong></span>
+                        <a href="./user/profile.php" class="btn btn-info btn-sm me-2">Profile</a>
+                        <a href="logout.php" class="btn btn-warning btn-sm">Logout</a>
+                    <?php else: ?>
+                        <!-- Login and register buttons -->
+                        <a href="register.php" class="btn btn-danger btn-sm me-2">Register</a>
+                        <a href="login.php" class="btn btn-success btn-sm">Login</a>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </nav>
+
     <main>
         <div class="intro">
             <h1>Online Buying & Selling Platform</h1>
-            <p><b>Buying and Selling </b></p>
+            <p style="font-size:medium;color:white"><b>Grab and Sell Your Products </b></p>
             <span>
                 <a href="./user/home.php" class="btn btn-primary">View & Buy Products</a>&nbsp;&nbsp;<a href="./functions/addproduct.php" class="btn btn-warning">Add Products</a>
             </span>
@@ -63,7 +59,7 @@ session_start(); // Start the session to handle user login state
     </main>
 
     <!-- Footer -->
-    <footer class="text-center text-lg-start bg-body-tertiary text-muted">
+    <footer class="text-center text-lg-start bg-dark" style="color: white;">
         <!-- Section: Social media -->
         <section class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
             <!-- Left -->
@@ -106,7 +102,7 @@ session_start(); // Start the session to handle user login state
                     <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
                         <!-- Content -->
                         <h6 class="text-uppercase fw-bold mb-4">
-                            <i class="fas fa-gem me-3"></i>Company name
+                            B&S PVT(LTD)
                         </h6>
                         <p>
                             Here you can use rows and columns to organize your footer content. Lorem ipsum
@@ -122,16 +118,16 @@ session_start(); // Start the session to handle user login state
                             Products
                         </h6>
                         <p>
-                            <a href="#!" class="text-reset">Angular</a>
+                            Chairs
                         </p>
                         <p>
-                            <a href="#!" class="text-reset">React</a>
+                            Mobile Phones
                         </p>
                         <p>
-                            <a href="#!" class="text-reset">Vue</a>
+                            Vehicles
                         </p>
                         <p>
-                            <a href="#!" class="text-reset">Laravel</a>
+                            Laptops
                         </p>
                     </div>
                     <!-- Grid column -->
@@ -143,16 +139,13 @@ session_start(); // Start the session to handle user login state
                             Useful links
                         </h6>
                         <p>
-                            <a href="#!" class="text-reset">Pricing</a>
+                            <a href="index.php" class="text-reset">Home</a>
                         </p>
                         <p>
-                            <a href="#!" class="text-reset">Settings</a>
+                            <a href="about.php" class="text-reset">About</a>
                         </p>
                         <p>
-                            <a href="#!" class="text-reset">Orders</a>
-                        </p>
-                        <p>
-                            <a href="#!" class="text-reset">Help</a>
+                            <a href="contact.php" class="text-reset">Contact</a>
                         </p>
                     </div>
                     <!-- Grid column -->
@@ -161,13 +154,12 @@ session_start(); // Start the session to handle user login state
                     <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                         <!-- Links -->
                         <h6 class="text-uppercase fw-bold mb-4">Contact</h6>
-                        <p><i class="fas fa-home me-3"></i> New York, NY 10012, US</p>
+                        <p>Pitipana, Homgama</p>
                         <p>
-                            <i class="fas fa-envelope me-3"></i>
-                            info@example.com
+                            buyandsell123@gmail.com
                         </p>
-                        <p><i class="fas fa-phone me-3"></i> + 01 234 567 88</p>
-                        <p><i class="fas fa-print me-3"></i> + 01 234 567 89</p>
+                        <p>+ 01 234 567 88</p>
+                        <p>+ 01 234 567 89</p>
                     </div>
                     <!-- Grid column -->
                 </div>
